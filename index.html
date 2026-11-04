@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#1c1c1e">
+<meta name="theme-color" content="#121214">
+<meta name="color-scheme" content="dark">
 <title>Sara</title>
 <style>
   :root {
@@ -18,8 +19,12 @@
     --red: #ff3b30;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; height: 100%; }
+  html {
+    margin: 0; height: 100%; min-height: 100vh; min-height: -webkit-fill-available;
+    background: var(--bg-bottom); color-scheme: dark;
+  }
   body {
+    margin: 0; min-height: 100vh; min-height: 100dvh; min-height: -webkit-fill-available;
     background: linear-gradient(180deg, var(--bg-top) 0%, #232325 45%, var(--bg-bottom) 100%);
     color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -28,7 +33,7 @@
     touch-action: manipulation;
   }
   .screen {
-    position: fixed; inset: 0;
+    position: fixed; inset: 0; height: 100vh; height: 100dvh;
     display: flex; flex-direction: column; align-items: center;
     padding: calc(env(safe-area-inset-top) + 64px) 16px calc(env(safe-area-inset-bottom) + 48px);
   }
@@ -73,7 +78,7 @@
     position: fixed; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom) + 8px);
     text-align: center; font-size: 12px; color: rgba(255,255,255,0.35); display: none;
   }
-  .blank { position: fixed; inset: 0; background: #000; display: none; }
+  .blank { position: fixed; inset: 0; height: 100vh; height: 100dvh; background: #000; display: none; }
 </style>
 </head>
 <body>
