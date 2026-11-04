@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1c1c1e">
+<title>Sara</title>
+<style>
+  :root {
+    --bg-top: #3a3a3c;
+    --bg-bottom: #121214;
+    --text: #ffffff;
+    --sub: rgba(255,255,255,0.62);
+    --btn: rgba(255,255,255,0.18);
+    --btn-on: #ffffff;
+    --red: #ff3b30;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: linear-gradient(180deg, var(--bg-top) 0%, #232325 45%, var(--bg-bottom) 100%);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    overflow: hidden;
+    user-select: none; -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  .screen {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column; align-items: center;
+    padding: calc(env(safe-area-inset-top) + 64px) 16px calc(env(safe-area-inset-bottom) + 48px);
+  }
+  .avatar {
+    width: 96px; height: 96px; border-radius: 50%;
+    background: linear-gradient(180deg, #a5a5aa, #6e6e73);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 42px; font-weight: 500; color: #fff; letter-spacing: 0.5px;
+    margin-bottom: 14px;
+  }
+  .name { font-size: 34px; font-weight: 400; letter-spacing: 0.2px; margin: 0; }
+  .status { font-size: 17px; color: var(--sub); margin-top: 6px; font-variant-numeric: tabular-nums; min-height: 22px; }
+  .spacer { flex: 1; }
+  .grid {
+    display: grid; grid-template-columns: repeat(3, 78px);
+    column-gap: 30px; row-gap: 26px; justify-content: center;
+    margin-bottom: 44px;
+  }
+  .cbtn { display: flex; flex-direction: column; align-items: center; gap: 8px; background: none; border: 0; color: var(--text); padding: 0; font: inherit; }
+  .circle {
+    width: 78px; height: 78px; border-radius: 50%;
+    background: var(--btn);
+    -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s, transform .1s;
+  }
+  .cbtn:active .circle { transform: scale(0.95); }
+  .cbtn.on .circle { background: var(--btn-on); }
+  .cbtn.on svg { fill: #1c1c1e; stroke: #1c1c1e; }
+  .cbtn svg { width: 34px; height: 34px; fill: #fff; }
+  .label { font-size: 13px; color: #fff; }
+  .end {
+    width: 78px; height: 78px; border-radius: 50%; border: 0;
+    background: var(--red);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .1s, opacity .2s;
+  }
+  .end:active { transform: scale(0.95); }
+  .end svg { width: 38px; height: 38px; fill: #fff; transform: rotate(135deg); }
+  .ended .grid, .ended .end { opacity: 0.35; pointer-events: none; }
+  .tap-hint {
+    position: fixed; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom) + 8px);
+    text-align: center; font-size: 12px; color: rgba(255,255,255,0.35); display: none;
+  }
+  .blank { position: fixed; inset: 0; background: #000; display: none; }
+</style>
+</head>
+<body>
+<div class="screen" id="screen">
+  <div class="avatar" aria-hidden="true">S</div>
+  <h1 class="name" id="callerName">Sara</h1>
+  <div class="status" id="status">00:00</div>
+
+  <div class="spacer"></div>
+
+  <div class="grid">
+    <button class="cbtn" id="btnSpeaker" aria-label="Speaker">
+      <span class="circle"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.47 4.47 0 0 0 2.5-4zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z"/></svg></span>
+      <span class="label">speaker</span>
+    </button>
+    <button class="cbtn" id="btnFacetime" aria-label="FaceTime">
+      <span class="circle"><svg viewBox="0 0 24 24"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg></span>
+      <span class="label">FaceTime</span>
+    </button>
+    <button class="cbtn" id="btnMute" aria-label="Mute">
+      <span class="circle"><svg viewBox="0 0 24 24"><path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5a3 3 0 0 0-6 0v.18l5.98 5.99zM4.27 3 3 4.27l6.01 6.01V11a3 3 0 0 0 4.48 2.6l1.66 1.66A5.5 5.5 0 0 1 12 16.3 5.3 5.3 0 0 1 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28a6.9 6.9 0 0 0 2.54-.9L19.73 21 21 19.73 4.27 3z"/></svg></span>
+      <span class="label">mute</span>
+    </button>
+    <button class="cbtn" id="btnAdd" aria-label="Add call">
+      <span class="circle"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></span>
+      <span class="label">add call</span>
+    </button>
+    <button class="cbtn" id="btnContacts" aria-label="Contacts">
+      <span class="circle"><svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span>
+      <span class="label">contacts</span>
+    </button>
+    <button class="cbtn" id="btnKeypad" aria-label="Keypad">
+      <span class="circle"><svg viewBox="0 0 24 24"><circle cx="6" cy="5" r="1.8"/><circle cx="12" cy="5" r="1.8"/><circle cx="18" cy="5" r="1.8"/><circle cx="6" cy="11" r="1.8"/><circle cx="12" cy="11" r="1.8"/><circle cx="18" cy="11" r="1.8"/><circle cx="6" cy="17" r="1.8"/><circle cx="12" cy="17" r="1.8"/><circle cx="18" cy="17" r="1.8"/><circle cx="12" cy="22" r="1.6"/></svg></span>
+      <span class="label">keypad</span>
+    </button>
+  </div>
+
+  <button class="end" id="btnEnd" aria-label="End call">
+    <svg viewBox="0 0 24 24"><path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57a1 1 0 0 0-1.02.24l-2.2 2.2a15.04 15.04 0 0 1-6.59-6.59l2.2-2.21a.96.96 0 0 0 .25-1A11.36 11.36 0 0 1 8.5 4a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1 17 17 0 0 0 17 17 1 1 0 0 0 1-1v-3.5a1 1 0 0 0-1-1z"/></svg>
+  </button>
+</div>
+<div class="tap-hint" id="tapHint">tap anywhere to connect audio</div>
+<div class="blank" id="blank"></div>
+
+<script type="module">
+  import { Conversation } from "https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.28.0/+esm";
+
+  // ElevenLabs Conversational AI agent for "Sara"
+  const AGENT_ID = "agent_1701m6m37x73ffcrqc38a5jkzxw2";
+
+  const $ = (id) => document.getElementById(id);
+  const statusEl = $("status");
+  let conversation = null;
+  let starting = false;
+  let ended = false;
+  let muted = false;
+  let speakerOn = false;
+  let wakeLock = null;
+
+  // Timer: starts immediately so it looks like an ongoing call
+  const startedAt = Date.now();
+  const fmt = (s) => {
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    const mm = String(m).padStart(2, "0"), ss = String(sec).padStart(2, "0");
+    return h ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
+  };
+  const timer = setInterval(() => {
+    if (!ended) statusEl.textContent = fmt(Math.floor((Date.now() - startedAt) / 1000));
+  }, 250);
+
+  async function keepAwake() {
+    try { if ("wakeLock" in navigator) wakeLock = await navigator.wakeLock.request("screen"); } catch {}
+  }
+
+  async function startCall() {
+    if (conversation || starting || ended) return;
+    starting = true;
+    try {
+      conversation = await Conversation.startSession({
+        agentId: AGENT_ID,
+        connectionType: "webrtc",
+        onConnect: () => { $("tapHint").style.display = "none"; },
+        onDisconnect: () => { conversation = null; if (!ended) endCall(); },
+        onError: (msg) => console.warn("call error:", msg),
+      });
+      if (muted) conversation.setMicMuted(true);
+      keepAwake();
+    } catch (err) {
+      console.warn("could not start, waiting for a tap:", err);
+      conversation = null;
+      $("tapHint").style.display = "block";
+    } finally {
+      starting = false;
+    }
+  }
+
+  async function endCall() {
+    if (ended) return;
+    ended = true;
+    clearInterval(timer);
+    statusEl.textContent = "Call Ended";
+    $("screen").classList.add("ended");
+    $("tapHint").style.display = "none";
+    const c = conversation; conversation = null;
+    try { if (c) await c.endSession(); } catch {}
+    try { if (wakeLock) await wakeLock.release(); } catch {}
+    setTimeout(() => {
+      $("screen").style.display = "none";
+      $("blank").style.display = "block";
+    }, 1600);
+  }
+
+  $("btnEnd").addEventListener("click", (e) => { e.stopPropagation(); endCall(); });
+
+  $("btnMute").addEventListener("click", (e) => {
+    e.stopPropagation();
+    muted = !muted;
+    e.currentTarget.classList.toggle("on", muted);
+    if (conversation) conversation.setMicMuted(muted);
+  });
+
+  $("btnSpeaker").addEventListener("click", (e) => {
+    e.stopPropagation();
+    speakerOn = !speakerOn;
+    e.currentTarget.classList.toggle("on", speakerOn);
+  });
+
+  // Cosmetic buttons: brief press feedback only
+  for (const id of ["btnFacetime", "btnAdd", "btnContacts", "btnKeypad"]) {
+    $(id).addEventListener("click", (e) => {
+      e.stopPropagation();
+      const b = e.currentTarget; b.classList.add("on");
+      setTimeout(() => b.classList.remove("on"), 180);
+      startCall();
+    });
+  }
+
+  // If the browser blocked auto-start (needs a user gesture), any tap connects
+  document.addEventListener("click", () => startCall());
+  document.addEventListener("touchend", () => startCall(), { passive: true });
+
+  // Stop everything if the page is closed
+  window.addEventListener("pagehide", () => { endCall(); });
+
+  startCall();
+</script>
+</body>
+</html>
